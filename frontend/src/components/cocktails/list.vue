@@ -8,8 +8,12 @@
       <input type="text" id="search" />
       <ul>
         <li v-for="item in data" :key="item.id">
-          <span style="font-weight: bold">{{ item.title }}</span> price:
-          {{ item.price }}€
+          <router-link
+            :to="{ name: 'cocktail_detail', params: { id: item.id } }"
+          >
+            {{ item.title }}
+          </router-link>
+          <p>price: {{ item.price }}</p>
         </li>
       </ul>
     </div>
@@ -18,31 +22,21 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { getCocktails } from '@/api/resources/cocktails';
 
 export default {
-  name: 'NewCocktail',
+  name: 'CocktailList',
   setup() {
     const data = ref([]);
     const loading = ref(true);
     const error = ref(null);
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/cocktails');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const jsonData = await response.json();
-        data.value = jsonData;
-      } catch (err) {
-        error.value = err.message;
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(fetchData);
-
+    onMounted(() =>
+      getCocktails()
+        .then((result) => (data.value = result))
+        .catch((error) => (error.value = error.message))
+        .finally(() => (loading.value = false))
+    );
     return {
       data,
       loading,
@@ -53,5 +47,11 @@ export default {
 </script>
 
 <style scoped>
-/* Add your styles here */
+li > p,
+li > a {
+  display: inline;
+}
+li > p {
+  margin-left: 1rem;
+}
 </style>

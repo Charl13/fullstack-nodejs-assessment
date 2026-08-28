@@ -2,17 +2,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import CocktailList from '@/components/cocktails/list.vue';
 import CocktailNew from '@/components/cocktails/new.vue';
+import CocktailDetail from '@/components/cocktails/detail.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'CocktailList',
+    name: 'cocktail_list',
     component: CocktailList,
   },
   {
-    path: '/new',
-    name: 'CocktailNew',
+    path: '/cocktails/new',
+    name: 'cocktail_new',
     component: CocktailNew,
+  },
+  {
+    path: '/cocktails/:id',
+    name: 'cocktail_detail',
+    component: CocktailDetail,
   },
 ];
 

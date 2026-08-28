@@ -1,25 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Cocktails } from './cocktails.entity';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Cocktail } from "./cocktails.entity";
 
 @Injectable()
 export class CocktailsService {
   constructor(
-    @InjectRepository(Cocktails)
-    private usersRepository: Repository<Cocktails>,
+    @InjectRepository(Cocktail)
+    private cocktailRepository: Repository<Cocktail>,
   ) {}
 
-  findAll(): Promise<Cocktails[]> {
-    return this.usersRepository.find();
+  findAll() {
+    return this.cocktailRepository.find();
   }
 
-  findOne(id: number): Promise<Cocktails | null> {
-    return this.usersRepository.findOneBy({ id });
+  findOne(id: number) {
+    return this.cocktailRepository.findOneBy({ id });
   }
 
-  create(cocktail: Cocktails) {
-    return this.usersRepository.insert(cocktail);
+  create(cocktail: Cocktail) {
+    return this.cocktailRepository.insert(cocktail);
   }
-
 }

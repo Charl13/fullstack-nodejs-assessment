@@ -19,47 +19,41 @@
       </div>
       <button type="submit">Submit</button>
     </form>
+    <p v-if="error" role="alert">{{ error }}</p>
   </div>
 </template>
 
 <script>
+import { reactive, ref } from 'vue';
+import { createCocktail } from '@/api/resources/cocktails';
+
 export default {
-  name: 'ListCocktail',
-  data() {
-    return {
-      form: {
-        title: '',
-        price: '',
-        description: '',
-      },
-    };
-  },
-  methods: {
-    async submitForm() {
+  name: 'CocktailNew',
+  setup() {
+    const form = reactive({
+      title: '',
+      price: '',
+      description: '',
+    });
+    const error = ref(null);
+
+    const submitForm = async () => {
+      error.value = null;
       try {
-        const response = await fetch('http://localhost:3000/cocktails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(this.form),
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        console.log('Form submitted successfully:', data);
-        // Clear the form
-        this.form.title = '';
-        this.form.price = '';
-        this.form.description = '';
-      } catch (error) {
-        console.error('There was an error submitting the form:', error);
-        // Handle the error (e.g., show an error message)
+        await createCocktail(form);
+        form.title = '';
+        form.price = '';
+        form.description = '';
+      } catch (err) {
+        error.value = err.message;
       }
-    },
+    };
+
+    return {
+      form,
+      error,
+      submitForm,
+    };
   },
 };
 </script>

@@ -7,10 +7,18 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    environment:
+      DEV_SERVER_ALLOWED_HOSTS: localhost,frontend
     depends_on:
       - backend
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   backend:
     build:
@@ -30,6 +38,23 @@ services:
         condition: service_healthy
     networks:
       - app-network
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.47.0-noble
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      BASE_URL: http://frontend:8080
+    depends_on:
+      frontend:
+        condition: service_healthy
+    networks:
+      - app-network
+    command: sh -c "npm install && npx playwright test"
+    profiles:
+      - tests
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0

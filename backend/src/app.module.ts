@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cocktails } from './cocktails/cocktails.entity';
+import { Cocktail } from './cocktails/cocktails.entity';
 import { CocktailsModule } from './cocktails/cocktails.module';
 import { ElasticSearch } from './elasticsearch.service';
 
@@ -10,7 +10,7 @@ import { ElasticSearch } from './elasticsearch.service';
       url: process.env.DATABASE_URL,
       type: 'postgres',
       logging: true,
-      entities: [Cocktails],
+      entities: [Cocktail],
     }),
     CocktailsModule,
   ],

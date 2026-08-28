@@ -8,8 +8,12 @@
       <input type="text" id="search" />
       <ul>
         <li v-for="item in data" :key="item.id">
-          <span style="font-weight: bold">{{ item.title }}</span> price:
-          {{ item.price }}€
+          <router-link
+            :to="{ name: 'cocktail_detail', params: { id: item.id } }"
+          >
+            {{ item.title }}
+          </router-link>
+          <p>price: {{ item.price }}</p>
         </li>
       </ul>
     </div>
@@ -20,7 +24,7 @@
 import { ref, onMounted } from 'vue';
 
 export default {
-  name: 'NewCocktail',
+  name: 'CocktailList',
   setup() {
     const data = ref([]);
     const loading = ref(true);
@@ -53,5 +57,11 @@ export default {
 </script>
 
 <style scoped>
-/* Add your styles here */
+li > p,
+li > a {
+  display: inline;
+}
+li > p {
+  margin-left: 1rem;
+}
 </style>

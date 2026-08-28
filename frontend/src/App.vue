@@ -2,8 +2,14 @@
   <div id="app">
     <nav>
       <ul>
-        <li><router-link to="/">List</router-link></li>
-        <li><router-link to="/new">new cocktail</router-link></li>
+        <li>
+          <router-link :to="{ name: 'cocktail_list' }">list</router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'cocktail_new' }">
+            new cocktail
+          </router-link>
+        </li>
       </ul>
     </nav>
     <router-view />

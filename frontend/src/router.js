@@ -6,12 +6,12 @@ import CocktailNew from '@/components/cocktails/new.vue';
 const routes = [
   {
     path: '/',
-    name: 'CocktailList',
+    name: 'cocktail_list',
     component: CocktailList,
   },
   {
-    path: '/new',
-    name: 'CocktailNew',
+    path: '/cocktails/new',
+    name: 'cocktail_new',
     component: CocktailNew,
   },
 ];

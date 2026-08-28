@@ -22,6 +22,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { getCocktails } from '@/api/resources/cocktails';
 
 export default {
   name: 'CocktailList',
@@ -30,23 +31,12 @@ export default {
     const loading = ref(true);
     const error = ref(null);
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/cocktails');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const jsonData = await response.json();
-        data.value = jsonData;
-      } catch (err) {
-        error.value = err.message;
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(fetchData);
-
+    onMounted(() =>
+      getCocktails()
+        .then((result) => (data.value = result))
+        .catch((error) => (error.value = error.message))
+        .finally(() => (loading.value = false))
+    );
     return {
       data,
       loading,

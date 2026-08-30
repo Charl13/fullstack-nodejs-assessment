@@ -6,11 +6,14 @@ services:
       - "8080:8080"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend-node-modules:/app/node_modules
     environment:
       DEV_SERVER_ALLOWED_HOSTS: localhost,frontend
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+      frontend-npm-install:
+        condition: service_completed_successfully
     networks:
       - app-network
     healthcheck:
@@ -27,32 +30,54 @@ services:
       - "3000:3000"
     volumes:
       - ./backend:/app
-      - /app/node_modules
+      - backend-node-modules:/app/node_modules
     environment:
       DATABASE_URL: postgres://user:password@db:5432/mydatabase
       ELASTICSEARCH_HOST: http://elasticsearch:9200
     depends_on:
-      # db:
-      #   condition: service_healthy
+      db:
+        condition: service_healthy
       elasticsearch:
         condition: service_healthy
+      backend-npm-install:
+        condition: service_completed_successfully
     networks:
       - app-network
+
+  backend-npm-install:
+    build:
+      context: ./backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
+    command: npm install
+
+  frontend-npm-install:
+    build:
+      context: ./frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    command: npm install
 
   playwright:
     image: mcr.microsoft.com/playwright:v1.47.0-noble
     working_dir: /app
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend-node-modules:/app/node_modules
     environment:
       BASE_URL: http://frontend:8080
     depends_on:
       frontend:
         condition: service_healthy
+      frontend-npm-install:
+        condition: service_completed_successfully
     networks:
       - app-network
-    command: sh -c "npm install && npx playwright test"
+    command: npx playwright test
     profiles:
       - tests
 
@@ -63,16 +88,17 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - ingest.geoip.downloader.enabled=false
-      - logger.level=warn  # Set log level to reduce verbosity
-      - xpack.security.enabled=false  # Disable security features for simplicity
-      - xpack.security.http.ssl.enabled=false  # Disable HTTPS
+      - logger.level=warn # Set log level to reduce verbosity
+      - xpack.security.enabled=false # Disable security features for simplicity
+      - xpack.security.http.ssl.enabled=false # Disable HTTPS
     ports:
       - 9200:9200
       - 9300:9300
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -91,11 +117,12 @@ services:
       - "5432:5432"
     networks:
       - app-network
-    # healthcheck:
-    #   test: ["CMD-SHELL", "pg_isready -U user -d mydatabase || exit 1"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 5
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydatabase || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
 
 networks:
   app-network:
@@ -103,4 +130,8 @@ networks:
 
 volumes:
   db-data:
+    driver: local
+  backend-node-modules:
+    driver: local
+  frontend-node-modules:
     driver: local

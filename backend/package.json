@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "start": "nest start --watch",
+    "cli": "ts-node src/commands/cli.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "@nestjs/event-emitter": "^2.1.1",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^10.0.2",
+    "nest-commander": "^3.15.0",
     "pg": "^8.13.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",

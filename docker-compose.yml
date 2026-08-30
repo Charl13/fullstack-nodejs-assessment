@@ -39,6 +39,8 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+      elastic-search-index:
+        condition: service_completed_successfully
       backend-npm-install:
         condition: service_completed_successfully
     networks:
@@ -61,6 +63,27 @@ services:
       - ./frontend:/app
       - frontend-node-modules:/app/node_modules
     command: npm install
+
+  elastic-search-index:
+    build:
+      context: ./backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
+    environment:
+      DATABASE_URL: postgres://user:password@db:5432/mydatabase
+      ELASTICSEARCH_HOST: http://elasticsearch:9200
+    depends_on:
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      backend-npm-install:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+    command: npm run elastic-search-index
 
   playwright:
     image: mcr.microsoft.com/playwright:v1.47.0-noble

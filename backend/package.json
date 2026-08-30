@@ -8,6 +8,7 @@
   "scripts": {
     "start": "nest start --watch",
     "cli": "ts-node src/commands/cli.ts",
+    "elastic-search-index": "ts-node src/commands/cli.ts elastic-search-index",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {

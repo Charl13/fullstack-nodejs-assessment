@@ -5,7 +5,7 @@ import { Cocktail } from './cocktails/cocktails.entity';
 import { CocktailsModule } from './cocktails/cocktails.module';
 import { CocktailsElasticsearch } from './cocktails/cocktails.elasticsearch';
 import { ELASTIC_SEARCH_INDEXERS } from './elasticsearch.service';
-import { ElasticSearch } from './elasticsearch.service';
+import { ElasticSearchIndexCommand } from './commands/elastic-search-index.command';
 
 @Module({
   imports: [
@@ -19,6 +19,7 @@ import { ElasticSearch } from './elasticsearch.service';
     CocktailsModule,
   ],
   providers: [
+    ElasticSearchIndexCommand,
     {
       provide: ELASTIC_SEARCH_INDEXERS,
       useFactory: (cocktailsElasticsearch: CocktailsElasticsearch) => [

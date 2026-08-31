@@ -6,13 +6,18 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Cocktail } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
+import { CocktailsElasticSearch } from './cocktails.elasticsearch';
 
 @Controller('cocktails')
 export class CocktailsController {
-  constructor(private readonly cocktailsService: CocktailsService) {}
+  constructor(
+    private readonly cocktailsService: CocktailsService,
+    private readonly cocktailsElasticSearch: CocktailsElasticSearch,
+  ) {}
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Cocktail> {
@@ -25,7 +30,10 @@ export class CocktailsController {
   }
 
   @Get()
-  findAll(): Promise<Cocktail[]> {
+  findAll(@Query('q') q?: string) {
+    if (q) {
+      return this.cocktailsElasticSearch.searchCocktails(q);
+    }
     return this.cocktailsService.findAll();
   }
 

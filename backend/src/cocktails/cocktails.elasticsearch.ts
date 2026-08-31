@@ -12,6 +12,20 @@ import {
 export class CocktailsElasticSearch {
   constructor(private readonly elasticSearch: ElasticSearch) {}
 
+  async searchCocktails(query: string) {
+    const results = await this.elasticSearch.search(COCKTAILS_INDEX, {
+      multi_match: {
+        query,
+        fields: ['title', 'description'],
+        fuzziness: 'AUTO',
+      },
+    });
+    return results.map((result) => ({
+      id: Number(result._id),
+      ...(result._source as Omit<Cocktail, 'id'>),
+    }));
+  }
+
   @OnEvent(CocktailCreatedEvent.name)
   async onCocktailCreated({ cocktail }: CocktailCreatedEvent) {
     try {

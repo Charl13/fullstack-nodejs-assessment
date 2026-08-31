@@ -34,7 +34,7 @@ async function waitForSearchResult(
 ) {
   for (let attempt = 0; attempt < attempts; attempt++) {
     const response = await request(app.getHttpServer()).get(
-      `/cocktails?q=${encodeURIComponent(query)}`,
+      `/api/cocktails?q=${encodeURIComponent(query)}`,
     );
     const match = response.body.find(
       (cocktail: { id: number }) => cocktail.id === id,
@@ -60,6 +60,7 @@ describe('Cocktails', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
 
     await app.init();
 
@@ -84,7 +85,7 @@ describe('Cocktails', () => {
     const price = 4.5;
 
     await request(app.getHttpServer())
-      .post('/cocktails')
+      .post('/api/cocktails')
       .send({
         title,
         description,
@@ -113,7 +114,7 @@ describe('Cocktails', () => {
     const price = 6;
 
     await request(app.getHttpServer())
-      .post('/cocktails')
+      .post('/api/cocktails')
       .send({
         title,
         description,

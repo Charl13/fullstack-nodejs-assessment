@@ -1,29 +1,71 @@
 <template>
-  <div v-if="!imageLoaded" id="image-placeholder">
-    ⏳Your cocktail is being visualed ...
-  </div>
+  <v-card :loading="!imageLoaded" class="mx-auto my-12" max-width="840">
+    <template v-slot:loader="{ isActive }">
+      <v-progress-linear
+        :active="isActive"
+        color="deep-purple"
+        height="4"
+        indeterminate
+      ></v-progress-linear>
+    </template>
 
-  <div v-if="cocktail">
-    <img
-      v-show="imageLoaded"
-      :alt="cocktail.title"
-      :src="createImageUrl(cocktail)"
-      @load="imageLoaded = true"
-      @error="imageLoaded = true"
-    />
+    <template v-if="cocktail">
+      <v-img
+        height=""
+        cover
+        :alt="cocktail.title"
+        :src="createImageUrl(cocktail)"
+        @load="imageLoaded = true"
+        @error="imageLoaded = true"
+      ></v-img>
 
-    <h1>{{ cocktail.title }}</h1>
+      <v-card-item>
+        <v-card-title>{{ cocktail.title }}</v-card-title>
+      </v-card-item>
 
-    <span>price: {{ cocktail.price }}</span>
+      <v-card-text>
+        <v-row class="align-center">
+          <v-rating
+            :model-value="rating"
+            color="amber"
+            density="compact"
+            size="small"
+            half-increments
+            readonly
+          ></v-rating>
 
-    <p>{{ cocktail.description }}</p>
-  </div>
+          <div class="text-grey ms-4">{{ rating }} ({{ votes }})</div>
+        </v-row>
+
+        <div class="my-4 text-body-large">€ {{ cocktail.price }}</div>
+
+        <div>{{ cocktail.description }}</div>
+      </v-card-text>
+
+      <v-divider class="mx-4 mb-1"></v-divider>
+
+      <v-card-actions>
+        <v-btn
+          text="Back"
+          block
+          border
+          @click="() => routeToCocktails()"
+        ></v-btn>
+      </v-card-actions>
+    </template>
+  </v-card>
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { routeToCocktails } from '@/routes';
 import { getCocktail } from '@/api/resources/cocktails';
+
+const seededRandom = (seed) => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
 
 export default {
   name: 'CocktailDetail',
@@ -44,9 +86,21 @@ export default {
     );
     onMounted(() => fetchCocktail(route.params.id));
 
+    const rating = computed(() => {
+      if (!cocktail.value) return 0;
+      const value = 3.5 + seededRandom(cocktail.value.id) * 1.5;
+      return Math.round(value * 2) / 2;
+    });
+    const votes = computed(() => {
+      if (!cocktail.value) return 0;
+      return Math.floor(50 + seededRandom(cocktail.value.id + 1) * 450);
+    });
     return {
       cocktail,
       imageLoaded,
+      rating,
+      votes,
+      routeToCocktails,
     };
   },
   methods: {
@@ -70,7 +124,7 @@ div > span {
   font-weight: bold;
 }
 div#image-placeholder {
-  width: 640px;
+  width: 840px;
   height: 480px;
   display: grid;
   place-items: center;

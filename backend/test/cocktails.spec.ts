@@ -138,4 +138,49 @@ describe('Cocktails', () => {
       price,
     });
   }, 15000);
+
+  it('rejects a cocktail with an invalid price', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/cocktails')
+      .send({
+        title: `Invalid Cocktail ${Date.now()}`,
+        description: 'Missing a valid price',
+        price: 'not-a-number',
+      })
+      .expect(400);
+
+    expect(response.body.message).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('price must be a number'),
+      ]),
+    );
+  });
+
+  it('rejects a cocktail with a duplicate title', async () => {
+    const title = `Duplicate Cocktail ${Date.now()}`;
+
+    await request(app.getHttpServer())
+      .post('/api/cocktails')
+      .send({ title, description: 'First one', price: 5 })
+      .expect(201);
+
+    const created = await cocktailRepository.findOneBy({ title });
+
+    expect(created).not.toBeNull();
+
+    createdIds.push(created.id);
+
+    const response = await request(app.getHttpServer())
+      .post('/api/cocktails')
+      .send({ title, description: 'Second one, should be rejected', price: 6 })
+      .expect(400);
+
+    expect(response.body.message).toEqual(
+      expect.arrayContaining([`A cocktail named "${title}" already exists.`]),
+    );
+
+    const count = await cocktailRepository.countBy({ title });
+
+    expect(count).toBe(1);
+  });
 });

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Client as EsClient } from '@elastic/elasticsearch';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { configureApp } from '../src/bootstrap';
 import { Cocktail } from '../src/cocktails/cocktails.entity';
 import { COCKTAILS_INDEX } from '../src/cocktails/cocktails.elasticsearch-indexer';
 
@@ -60,7 +61,7 @@ describe('Cocktails', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api');
+    configureApp(app);
 
     await app.init();
 

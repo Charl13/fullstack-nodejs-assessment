@@ -5,7 +5,7 @@
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
       <label for="search">Search by description:</label>
-      <input type="text" id="search" />
+      <input type="text" id="search" v-model="search" />
       <ul>
         <li v-for="item in data" :key="item.id">
           <router-link
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { getCocktails } from '@/api/resources/cocktails';
 
 export default {
@@ -30,17 +30,23 @@ export default {
     const data = ref([]);
     const loading = ref(true);
     const error = ref(null);
+    const search = ref('');
 
-    onMounted(() =>
-      getCocktails()
+    const fetchData = () =>
+      getCocktails(search.value)
         .then((result) => (data.value = result))
-        .catch((error) => (error.value = error.message))
-        .finally(() => (loading.value = false))
-    );
+        .catch((err) => (error.value = err.message));
+
+    onMounted(() => {
+      fetchData().finally(() => (loading.value = false));
+    });
+    watch(search, fetchData);
+
     return {
       data,
       loading,
       error,
+      search,
     };
   },
 };

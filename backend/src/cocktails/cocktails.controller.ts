@@ -11,6 +11,7 @@ import {
 import { Cocktail } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
 import { CocktailsElasticSearch } from './cocktails.elasticsearch';
+import { CreateCocktailDto } from './cocktails.dtos';
 
 @Controller('cocktails')
 export class CocktailsController {
@@ -38,7 +39,7 @@ export class CocktailsController {
   }
 
   @Post()
-  async create(@Body() cocktail: Cocktail) {
+  async create(@Body() cocktail: CreateCocktailDto) {
     console.log('info: creating cocktail', cocktail);
     const res = await this.cocktailsService.create(cocktail);
     console.log('res', res);

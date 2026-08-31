@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cocktail } from './cocktails.entity';
 import { CocktailCreatedEvent } from './cocktails.events';
+import { CreateCocktailDto } from './cocktails.dtos';
 
 @Injectable()
 export class CocktailsService {
@@ -21,7 +22,7 @@ export class CocktailsService {
     return this.cocktailRepository.findOneBy({ id });
   }
 
-  async create(cocktail: Cocktail) {
+  async create(cocktail: CreateCocktailDto) {
     const created = await this.cocktailRepository.save(cocktail);
 
     this.eventEmitter.emit(

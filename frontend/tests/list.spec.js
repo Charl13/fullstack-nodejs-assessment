@@ -4,6 +4,7 @@ test('shows the cocktail list', async ({ page }) => {
   await page.goto('/');
 
   await expect(
-    page.getByRole('heading', { name: 'Cocktails List' }),
+    page.getByRole('button', { name: 'Add cocktail' }),
   ).toBeVisible();
+  await expect(page.locator('tbody tr').first()).toBeVisible();
 });

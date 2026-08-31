@@ -6,6 +6,7 @@ import { CocktailsElasticSearch } from './cocktails.elasticsearch';
 import { CocktailsElasticSearchIndexer } from './cocktails.elasticsearch-indexer';
 import { Cocktail } from './cocktails.entity';
 import { ElasticSearchModule } from '../elasticsearch.module';
+import { IsTitleUniqueConstraint } from './cocktails.validators';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Cocktail]), ElasticSearchModule],
@@ -13,6 +14,7 @@ import { ElasticSearchModule } from '../elasticsearch.module';
     CocktailsService,
     CocktailsElasticSearch,
     CocktailsElasticSearchIndexer,
+    IsTitleUniqueConstraint,
   ],
   controllers: [CocktailsController],
   exports: [

@@ -39,14 +39,18 @@
       :loading="loading"
       :height="800"
       item-value="id"
-      fixed-footer
       fixed-header
+      hide-default-footer
       @click:row="(event, { item }) => routeToCocktail(item)"
     >
       <template #[`item.price`]="{ value }">
         € {{ value.toLocaleString() }}
       </template>
     </v-data-table>
+
+    <div class="table-total pa-2 text-caption text-medium-emphasis text-end">
+      {{ data.length }} cocktail{{ data.length === 1 ? '' : 's' }}
+    </div>
   </v-card>
 </template>
 
@@ -104,7 +108,7 @@ export default {
 </script>
 
 <style scoped>
-.v-data-table-footer {
+.table-total {
   position: sticky;
   background-color: inherit;
   border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));

@@ -1,63 +1,113 @@
 <template>
-  <div>
-    <h1>Cocktails List</h1>
-    <div v-if="loading">Loading...</div>
-    <div v-else-if="error">{{ error }}</div>
-    <div v-else>
-      <label for="search">Search by description:</label>
-      <input type="text" id="search" v-model="search" />
-      <ul>
-        <li v-for="item in data" :key="item.id">
-          <router-link
-            :to="{ name: 'cocktail_detail', params: { id: item.id } }"
-          >
-            {{ item.title }}
-          </router-link>
-          <p>price: {{ item.price }}</p>
-        </li>
-      </ul>
-    </div>
+  <div class="d-flex justify-end mb-4">
+    <v-dialog v-model="dialog" width="640">
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn
+          v-bind="activatorProps"
+          text="Add cocktail"
+          color="primary"
+          prepend-icon="mdi-plus"
+        ></v-btn>
+      </template>
+
+      <template v-slot:default="{}">
+        <cocktail-form
+          cancel
+          @cancel="dialog = false"
+          @submit="loading = true"
+        />
+      </template>
+    </v-dialog>
   </div>
+
+  <v-card>
+    <v-text-field
+      v-model="search"
+      density="compact"
+      placeholder="Type 'Nojito'..."
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+    ></v-text-field>
+
+    <div v-if="error">{{ error }}</div>
+
+    <v-data-table
+      :headers="headers"
+      :items="data"
+      :items-per-page="-1"
+      :loading="loading"
+      :height="800"
+      item-value="id"
+      fixed-footer
+      fixed-header
+      @click:row="(event, { item }) => routeToCocktail(item)"
+    >
+      <template #[`item.price`]="{ value }">
+        € {{ value.toLocaleString() }}
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
 import { ref, onMounted, watch } from 'vue';
 import { getCocktails } from '@/api/resources/cocktails';
+import { routeToCocktail } from '@/routes';
+import CocktailForm from '@/components/cocktails/form.vue';
 
 export default {
   name: 'CocktailList',
+  components: {
+    CocktailForm,
+  },
   setup() {
     const data = ref([]);
-    const loading = ref(true);
+    const loading = ref(false);
     const error = ref(null);
     const search = ref('');
-
-    const fetchData = () =>
-      getCocktails(search.value)
-        .then((result) => (data.value = result))
-        .catch((err) => (error.value = err.message));
-
-    onMounted(() => {
-      fetchData().finally(() => (loading.value = false));
+    const dialog = ref(false);
+    const headers = [
+      { title: 'Name', key: 'title', align: 'start' },
+      { title: 'Price (€)', key: 'price', align: 'end' },
+    ];
+    watch(search, (value) => {
+      if (value.length === 0 || value.length >= 4) {
+        loading.value = true;
+      }
     });
-    watch(search, fetchData);
-
+    watch(loading, (isLoading) => {
+      if (isLoading) {
+        getCocktails(search.value)
+          .then((result) => (data.value = result))
+          .catch((err) => (error.value = err.message))
+          .finally(() => (loading.value = false));
+      }
+    });
+    watch(loading, (loading) => {
+      if (!loading) {
+        dialog.value = false;
+      }
+    });
+    onMounted(() => (loading.value = true));
     return {
       data,
       loading,
       error,
       search,
+      headers,
+      routeToCocktail,
+      dialog,
     };
   },
 };
 </script>
 
 <style scoped>
-li > p,
-li > a {
-  display: inline;
-}
-li > p {
-  margin-left: 1rem;
+.v-data-table-footer {
+  position: sticky;
+  background-color: inherit;
+  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  bottom: 0;
 }
 </style>

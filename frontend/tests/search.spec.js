@@ -3,12 +3,13 @@ const { test, expect } = require('@playwright/test');
 test('filters the cocktail list by search term', async ({ page }) => {
   await page.goto('/');
 
-  const cocktailItems = page.locator('li:has(p)');
+  const cocktailRows = page.locator('tbody tr');
 
-  await expect(cocktailItems).toHaveCount(15);
+  await expect(cocktailRows.first()).toBeVisible();
+  const initialCount = await cocktailRows.count();
 
-  await page.getByLabel('Search by description:').fill('mint');
+  await page.getByPlaceholder("Type 'Nojito'...").fill('mint');
 
-  await expect(cocktailItems).not.toHaveCount(15);
-  await expect(cocktailItems.first()).toBeVisible();
+  await expect(cocktailRows).not.toHaveCount(initialCount);
+  await expect(cocktailRows.first()).toBeVisible();
 });

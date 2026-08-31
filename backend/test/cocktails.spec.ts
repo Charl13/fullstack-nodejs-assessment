@@ -25,11 +25,34 @@ async function waitForEsDocument(
   throw new Error(`Document ${id} did not appear in Elasticsearch in time`);
 }
 
+async function waitForSearchResult(
+  app: INestApplication,
+  query: string,
+  id: number,
+  attempts = 15,
+  delayMs = 300,
+) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const response = await request(app.getHttpServer()).get(
+      `/cocktails?q=${encodeURIComponent(query)}`,
+    );
+    const match = response.body.find(
+      (cocktail: { id: number }) => cocktail.id === id,
+    );
+
+    if (match) {
+      return match;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  throw new Error(`Cocktail ${id} did not appear in search results in time`);
+}
+
 describe('Cocktails', () => {
   let app: INestApplication;
   let cocktailRepository: Repository<Cocktail>;
   let elasticSearch: EsClient;
-  let createdId: number;
+  const createdIds: number[] = [];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -45,11 +68,11 @@ describe('Cocktails', () => {
   });
 
   afterAll(async () => {
-    if (createdId) {
-      await cocktailRepository.delete(createdId);
+    for (const id of createdIds) {
+      await cocktailRepository.delete(id);
 
       await elasticSearch
-        .delete({ index: COCKTAILS_INDEX, id: String(createdId) })
+        .delete({ index: COCKTAILS_INDEX, id: String(id) })
         .catch(() => undefined);
     }
     await app.close();
@@ -73,11 +96,41 @@ describe('Cocktails', () => {
 
     expect(created).not.toBeNull();
 
-    createdId = created.id;
+    createdIds.push(created.id);
 
     const doc = await waitForEsDocument(elasticSearch, String(created.id));
 
     expect(doc).toMatchObject({
+      title,
+      description,
+      price,
+    });
+  }, 15000);
+
+  it('filters a cocktail via fuzzy search', async () => {
+    const title = `Fuzzy Cocktail ${Date.now()}`;
+    const description = 'A drink used to test fuzzy search';
+    const price = 6;
+
+    await request(app.getHttpServer())
+      .post('/cocktails')
+      .send({
+        title,
+        description,
+        price,
+      })
+      .expect(201);
+
+    const created = await cocktailRepository.findOneBy({ title });
+
+    expect(created).not.toBeNull();
+
+    createdIds.push(created.id);
+
+    const typoQuery = title.replace('Fuzzy', 'Fuzzi');
+    const match = await waitForSearchResult(app, typoQuery, created.id);
+
+    expect(match).toMatchObject({
       title,
       description,
       price,

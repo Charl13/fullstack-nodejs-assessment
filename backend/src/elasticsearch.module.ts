@@ -5,4 +5,4 @@ import { ElasticSearch } from './elasticsearch.service';
   providers: [ElasticSearch],
   exports: [ElasticSearch],
 })
-export class ElasticsearchModule {}
+export class ElasticSearchModule {}

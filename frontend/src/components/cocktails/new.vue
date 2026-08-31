@@ -1,10 +1,10 @@
 <template>
-  <cocktail-form @submit="() => routeToCocktails()" />
+  <cocktail-form @submit="(created) => routeToCocktail(created)" />
 </template>
 
 <script>
 import CocktailForm from '@/components/cocktails/form.vue';
-import { routeToCocktails } from '@/routes';
+import { routeToCocktail } from '@/routes';
 
 export default {
   name: 'CocktailNew',
@@ -13,7 +13,7 @@ export default {
   },
   setup() {
     return {
-      routeToCocktails,
+      routeToCocktail,
     };
   },
 };

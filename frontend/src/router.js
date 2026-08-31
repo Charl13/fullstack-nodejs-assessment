@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import CocktailList from '@/components/cocktails/list.vue';
 import CocktailNew from '@/components/cocktails/new.vue';
 import CocktailDetail from '@/components/cocktails/detail.vue';
+import ApiDocs from '@/components/docs.vue';
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     path: '/cocktails/:id',
     name: 'cocktail_detail',
     component: CocktailDetail,
+  },
+  {
+    path: '/docs',
+    name: 'docs',
+    component: ApiDocs,
   },
 ];
 

@@ -100,8 +100,8 @@ export default {
       error.value = null;
 
       createCocktail(cocktail)
-        .then(() => {
-          emit('submit', { ...cocktail });
+        .then((created) => {
+          emit('submit', created);
         })
         .catch((err) => {
           error.value = err.message;

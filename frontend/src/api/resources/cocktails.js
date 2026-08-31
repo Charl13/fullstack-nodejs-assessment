@@ -2,7 +2,8 @@ import { apiFetch } from '@/api/client';
 
 export const getCocktail = (id) => apiFetch(`/cocktails/${id}`);
 
-export const getCocktails = () => apiFetch('/cocktails');
+export const getCocktails = (query) =>
+  apiFetch(`/cocktails${query ? `?q=${encodeURIComponent(query)}` : ''}`);
 
 export const createCocktail = (payload) =>
   apiFetch('/cocktails', {

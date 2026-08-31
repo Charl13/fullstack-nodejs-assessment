@@ -3,8 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { Cocktail } from './cocktails/cocktails.entity';
 import { CocktailsModule } from './cocktails/cocktails.module';
-import { CocktailsElasticsearch } from './cocktails/cocktails.elasticsearch';
+import { CocktailsElasticSearchIndexer } from './cocktails/cocktails.elasticsearch-indexer';
 import { ELASTIC_SEARCH_INDEXERS } from './elasticsearch.service';
+import { ElasticSearchModule } from './elasticsearch.module';
 import { ElasticSearchIndexCommand } from './commands/elastic-search-index.command';
 
 @Module({
@@ -17,15 +18,16 @@ import { ElasticSearchIndexCommand } from './commands/elastic-search-index.comma
       entities: [Cocktail],
     }),
     CocktailsModule,
+    ElasticSearchModule,
   ],
   providers: [
     ElasticSearchIndexCommand,
     {
       provide: ELASTIC_SEARCH_INDEXERS,
-      useFactory: (cocktailsElasticsearch: CocktailsElasticsearch) => [
-        cocktailsElasticsearch,
+      useFactory: (cocktailsSearchIndexer: CocktailsElasticSearchIndexer) => [
+        cocktailsSearchIndexer,
       ],
-      inject: [CocktailsElasticsearch],
+      inject: [CocktailsElasticSearchIndexer],
     },
   ],
 })

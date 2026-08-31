@@ -2,14 +2,23 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CocktailsService } from './cocktails.service';
 import { CocktailsController } from './cocktails.controller';
-import { CocktailsElasticsearch } from './cocktails.elasticsearch';
+import { CocktailsElasticSearch } from './cocktails.elasticsearch';
+import { CocktailsElasticSearchIndexer } from './cocktails.elasticsearch-indexer';
 import { Cocktail } from './cocktails.entity';
-import { ElasticsearchModule } from '../elasticsearch.module';
+import { ElasticSearchModule } from '../elasticsearch.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cocktail]), ElasticsearchModule],
-  providers: [CocktailsService, CocktailsElasticsearch],
+  imports: [TypeOrmModule.forFeature([Cocktail]), ElasticSearchModule],
+  providers: [
+    CocktailsService,
+    CocktailsElasticSearch,
+    CocktailsElasticSearchIndexer,
+  ],
   controllers: [CocktailsController],
-  exports: [CocktailsService, CocktailsElasticsearch],
+  exports: [
+    CocktailsService,
+    CocktailsElasticSearch,
+    CocktailsElasticSearchIndexer,
+  ],
 })
 export class CocktailsModule {}

@@ -6,7 +6,7 @@ import { Client as EsClient } from '@elastic/elasticsearch';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { Cocktail } from '../src/cocktails/cocktails.entity';
-import { COCKTAILS_INDEX } from '../src/cocktails/cocktails.elasticsearch';
+import { COCKTAILS_INDEX } from '../src/cocktails/cocktails.elasticsearch-indexer';
 
 async function waitForEsDocument(
   esClient: EsClient,
